@@ -8,10 +8,10 @@
     "server": "nodemon server.js",
     "client": "npm start --prefix ./client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "sonarqube": "sonarqube-scanner",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.frontend.config.js",
-    "test:backend": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.backend.config.js"
+    "sonarqube": "sonar-scanner",
+    "test": "jest --config jest.config.js --coverage",
+    "test:frontend": "jest --config jest.frontend.config.js --coverage",
+    "test:backend": "jest --config jest.backend.config.js --coverage"
   },
   "keywords": [],
   "author": "RP",
@@ -32,7 +32,8 @@
     "morgan": "^1.10.0",
     "nodemon": "^3.0.3",
     "react-icons": "^5.0.1",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

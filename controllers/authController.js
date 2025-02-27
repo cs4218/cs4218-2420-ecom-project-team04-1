@@ -1,5 +1,6 @@
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
+import validator from 'validator';
 
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
@@ -13,6 +14,10 @@ export const registerController = async (req, res) => {
     }
     if (!email) {
       return res.send({ message: "Email is Required" });
+    }
+    // Check email format
+    if (!validator.isEmail(email)) {
+      return res.send({ message: "Invalid Email Format" });
     }
     if (!password) {
       return res.send({ message: "Password is Required" });
