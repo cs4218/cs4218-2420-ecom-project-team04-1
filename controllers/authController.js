@@ -228,8 +228,8 @@ export const getAllOrdersController = async (req, res) => {
       .find({})
       .populate("products", "-photo")
       .populate("buyer", "name")
-      .sort({ createdAt: "-1" });
-    res.json(orders);
+      .sort({ createdAt: -1 })
+      res.json(orders);
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -256,6 +256,50 @@ export const orderStatusController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error While Updateing Order",
+      error,
+    });
+  }
+};
+
+// Get all users - Admin only
+export const getAllUsersController = async (req, res) => {
+  try {
+    const users = await userModel
+      .find({})
+      .select("-password") // Exclude password for security
+      .sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error While Getting Users",
+      error,
+    });
+  }
+};
+
+// Get single user by ID
+export const getUserController = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await userModel
+      .findById(userId)
+      .select("-password"); // Exclude password for security
+    
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+    
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error While Getting User",
       error,
     });
   }

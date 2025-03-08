@@ -40,6 +40,14 @@ export const createProductController = async (req, res) => {
           .send({ error: "photo is Required and should be less then 1mb" });
     }
 
+    const existingProduct = await productModel.findOne({ name });
+    if (existingProduct) {
+      return res.status(400).send({
+        success: false,
+        error: "Product with this name already exists"
+      });
+    }
+
     const products = new productModel({ ...req.fields, slug: slugify(name) });
     if (photo) {
       products.photo.data = fs.readFileSync(photo.path);
