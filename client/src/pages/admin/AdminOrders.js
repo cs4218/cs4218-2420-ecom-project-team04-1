@@ -37,8 +37,12 @@ const AdminOrders = () => {
       const { data } = await axios.put(`/api/v1/auth/order-status/${orderId}`, {
         status: value,
       });
+      if (data?.success) {
+        toast.success("Order status updated");
+      }
       getOrders();
     } catch (error) {
+      toast.error("Something went wrong in updating order status");
       console.log(error);
     }
   };
@@ -52,7 +56,7 @@ const AdminOrders = () => {
           <h1 className="text-center">All Orders</h1>
           {orders?.map((o, i) => {
             return (
-              <div className="border shadow">
+              <div className="border shadow" key={o._id}>
                 <table className="table">
                   <thead>
                     <tr>
@@ -69,9 +73,10 @@ const AdminOrders = () => {
                       <td>{i + 1}</td>
                       <td>
                         <Select
-                          bordered={false}
+                          variant="borderless"
                           onChange={(value) => handleChange(o._id, value)}
                           defaultValue={o?.status}
+                          key={o._id}
                         >
                           {status.map((s, i) => (
                             <Option key={i} value={s}>
@@ -81,7 +86,7 @@ const AdminOrders = () => {
                         </Select>
                       </td>
                       <td>{o?.buyer?.name}</td>
-                      <td>{moment(o?.createAt).fromNow()}</td>
+                      <td>{moment(o?.createdAt).fromNow()}</td>
                       <td>{o?.payment.success ? "Success" : "Failed"}</td>
                       <td>{o?.products?.length}</td>
                     </tr>

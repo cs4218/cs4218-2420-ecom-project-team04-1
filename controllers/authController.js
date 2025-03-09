@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
-import { comparePassword, hashPassword } from "../helpers/authHelper.js";
+import validator from 'validator';
+import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
@@ -14,6 +15,10 @@ export const registerController = async (req, res) => {
     }
     if (!email) {
       return res.status(400).send({ success: false, message: "Email is required" });
+    }
+    // Check email format
+    if (!validator.isEmail(email)) {
+      return res.send({ message: "Invalid Email Format" });
     }
     if (!password) {
       return res.status(400).send({ success: false, message: "Password is required" });
@@ -289,6 +294,7 @@ export const getAllOrdersController = async (req, res) => {
       message: "All orders retrieved successfully",
       orders,
     });
+
   } catch (error) {
     console.log(error);
 
@@ -321,6 +327,51 @@ export const orderStatusController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error while updating order status",
+      error,
+    });
+  }
+};
+
+
+// Get all users - Admin only
+export const getAllUsersController = async (req, res) => {
+  try {
+    const users = await userModel
+      .find({})
+      .select("-password") // Exclude password for security
+      .sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error While Getting Users",
+      error,
+    });
+  }
+};
+
+// Get single user by ID
+export const getUserController = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await userModel
+      .findById(userId)
+      .select("-password"); // Exclude password for security
+    
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+    
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error While Getting User",
       error,
     });
   }
