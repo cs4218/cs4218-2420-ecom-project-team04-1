@@ -11,8 +11,7 @@
     "sonarqube": "sonar-scanner",
     "test": "jest --config jest.config.js --coverage",
     "test:frontend": "jest --config jest.frontend.config.js --coverage",
-    "test:backend": "jest --config jest.backend.config.js --coverage",
-    "test:category": "jest tests/category --config jest.backend.config.js --testTimeout=30000"
+    "test:backend": "jest --config jest.backend.config.js --coverage"
   },
   "keywords": [],
   "author": "RP",
