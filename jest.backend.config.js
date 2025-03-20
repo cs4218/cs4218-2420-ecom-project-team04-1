@@ -12,8 +12,11 @@ export default {
 
   // setupFilesAfterEnv: ["<rootDir>/jest.setup.backend.js"],
 
-  // which test to run
-  testMatch: ['<rootDir>/*/*.test.js'],
+  // which test to run - updated to include tests in tests directory
+  testMatch: [
+    '<rootDir>/*/*.test.js',
+    '<rootDir>/tests/**/*.test.js'
+  ],
 
   // jest does not recognise jsx files by default, so we use babel to transform any jsx files
   transform: {
