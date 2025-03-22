@@ -6,7 +6,7 @@ const TEST_PRODUCT = {
   name: 'Novel',
   description: 'A bestselling novel',
   price: 14.99,
-  category: 'Books',
+  category: 'Book',
   slug: 'novel',
 };
 
