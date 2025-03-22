@@ -1,8 +1,8 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
-import app from '../../app.js';
-import CategoryModel from '../../models/categoryModel.js';
-import { setupTestDB } from '../../testSetup.js';
+import app from '../app.js';
+import CategoryModel from '../models/categoryModel.js';
+import { setupTestDB } from '../testSetup.js';
 import JWT from 'jsonwebtoken';
 
 // Setup test database

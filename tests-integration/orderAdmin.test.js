@@ -1,10 +1,10 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
-import app from '../../app.js';
-import OrderModel from '../../models/orderModel.js';
-import UserModel from '../../models/userModel.js';
-import ProductModel from '../../models/productModel.js';
-import { setupTestDB } from '../../testSetup.js';
+import app from '../app.js';
+import OrderModel from '../models/orderModel.js';
+import UserModel from '../models/userModel.js';
+import ProductModel from '../models/productModel.js';
+import { setupTestDB } from '../testSetup.js';
 import JWT from 'jsonwebtoken';
 
 // Setup test database
