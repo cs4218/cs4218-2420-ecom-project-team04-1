@@ -15,7 +15,8 @@ export default {
   // which test to run - updated to include tests in tests directory
   testMatch: [
     '<rootDir>/*/*.test.js',
-    '<rootDir>/tests/**/*.test.js'
+    '<rootDir>/tests/**/*.test.js',
+    '<rootDir>/tests-integration/**/*.test.js'
   ],
 
   // jest does not recognise jsx files by default, so we use babel to transform any jsx files
