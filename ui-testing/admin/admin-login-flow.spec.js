@@ -113,19 +113,11 @@ test.describe('Admin Dashboard Features', () => {
   
     // 4. Update product details: change name and description to "Lion"
     const newName = 'Lion';
-    const newDescription = 'Lion';
-    
-    // Update the product name
-    const nameField = page.getByRole('textbox', { name: 'write a name' });
-    await nameField.click();
-    await nameField.press('ControlOrMeta+a');
-    await nameField.fill(newName);
-  
-    // Update the product description
-    const descriptionField = page.getByRole('textbox', { name: 'write a description' });
-    await descriptionField.click();
-    await descriptionField.press('ControlOrMeta+a');
-    await descriptionField.fill(newDescription);
+    await page.getByPlaceholder('write a name').fill(newName);
+    await page.getByPlaceholder('write a description').fill('This is lion');
+    await page.getByPlaceholder('write a Price').fill('9');
+    await page.getByPlaceholder('write a quantity').fill('1');
+
 
     const toggleDisplay = page.locator('span.ant-select-selection-item', { hasText: /^(Yes|No)$/ }).first();
     const currentToggle = (await toggleDisplay.textContent())?.trim();
@@ -135,12 +127,16 @@ test.describe('Admin Dashboard Features', () => {
     } else {
       await page.getByTitle('Yes').first().click();
     }
+
+    const photoPath = path.resolve(__dirname, '../data/Lions.jpg');
+    await page.locator('input[type="file"]').setInputFiles(photoPath);
   
     // 5. Click the "UPDATE PRODUCT" button to submit the changes
     await page.getByRole('button', { name: 'UPDATE PRODUCT' }).click();
   
     // 6. Assert that the update was successful by checking:
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
+    await expect(page.getByText(newName)).toBeVisible();
   });
 
   test('should show error when updating a product with a duplicate name', async ({ page }) => {
