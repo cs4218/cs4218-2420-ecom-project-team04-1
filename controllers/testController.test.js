@@ -6,8 +6,10 @@ describe("testController", () => {
 
   beforeEach(() => {
     jsonMock = jest.fn();
+    statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+
     res = {
-      send: jsonMock,
+      status: statusMock,
     };
 
     jest.clearAllMocks();
@@ -17,7 +19,8 @@ describe("testController", () => {
   test("should return 'Protected Routes'", () => {
     testController(req, res);
 
-    expect(jsonMock).toHaveBeenCalledWith("Protected Routes");
+    expect(statusMock).toHaveBeenCalledWith(200); // Ensure status 200 is called
+    expect(jsonMock).toHaveBeenCalledWith({ message: "Protected Routes" }); // Ensure correct JSON response
   });
 
   // Use Case 2: Should handle unexpected errors
@@ -30,7 +33,7 @@ describe("testController", () => {
         throw errorMock;
       } catch (error) {
         console.log(error);
-        res.send({ error });
+        res.status(500).json({ error });
       }
     };
 

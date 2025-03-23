@@ -18,7 +18,7 @@ export const registerController = async (req, res) => {
     }
     // Check email format
     if (!validator.isEmail(email)) {
-      return res.send({ message: "Invalid Email Format" });
+      return res.status(400).send({ success: false, message: "Invalid Email Format" });
     }
     if (!password) {
       return res.status(400).send({ success: false, message: "Password is required" });
@@ -175,10 +175,10 @@ export const forgotPasswordController = async (req, res) => {
 // test controller
 export const testController = (req, res) => {
   try {
-    res.send("Protected Routes");
+    res.status(200).json({ message: "Protected Routes" });
   } catch (error) {
     console.log(error);
-    res.send({ error });
+    res.status(500).json({ error });
   }
 };
 

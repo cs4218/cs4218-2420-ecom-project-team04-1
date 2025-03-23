@@ -33,18 +33,21 @@ describe("requireSignIn Middleware", () => {
     });
 
     it("should call next() if a valid token is provided", async () => {
-        // Mock request with a valid token
         req.headers.authorization = "valid_token";
-
-        // Mock JWT verify to return a decoded token
+    
         jwt.verify = jest.fn().mockReturnValue({ _id: "user_id" });
-
+    
+        // Mock userModel.findById to return a matching user
+        userModel.findById = jest.fn().mockResolvedValue({ _id: "user_id" });
+    
         await requireSignIn(req, res, next);
-
+    
         expect(jwt.verify).toHaveBeenCalledWith("valid_token", process.env.JWT_SECRET);
+        expect(userModel.findById).toHaveBeenCalledWith("user_id");
         expect(req.user).toEqual({ _id: "user_id" });
         expect(next).toHaveBeenCalled();
     });
+    
 
     it("should return 401 if token is missing", async () => {
         await requireSignIn(req, res, next);
