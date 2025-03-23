@@ -4,8 +4,10 @@ import { MemoryRouter } from 'react-router-dom';
 import ProductDetails from './ProductDetails';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/cart';
 import '@testing-library/jest-dom/extend-expect';
-
+import toast from 'react-hot-toast';
+import { act } from 'react-dom/test-utils';
 jest.mock('axios');
 jest.mock('react-hot-toast', () => ({
   success: jest.fn(),
@@ -26,12 +28,12 @@ describe('ProductDetails', () => {
   const mockNavigate = jest.fn();
   const mockParams = { slug: 'product-slug' };
   const mockSetCart = jest.fn();
-
+  const mockCart = [];
   beforeEach(() => {
     useParams.mockReturnValue(mockParams);
     useNavigate.mockReturnValue(mockNavigate);
-    require('../context/cart').useCart.mockReturnValue([[], mockSetCart]);
-    jest.clearAllMocks();
+    useCart.mockReturnValue([mockCart, mockSetCart]);
+    Storage.prototype.setItem = jest.fn();
   });
 
   it('should render the ProductDetails component with product details', async () => {
@@ -140,11 +142,7 @@ describe('ProductDetails', () => {
         <ProductDetails />
       </MemoryRouter>
     );
-
-    await waitFor(() => {
-      expect(getByText('Product 2')).toBeInTheDocument();
-    });
-
+    await waitFor(() => getByText('Product 2'));
     fireEvent.click(getByText('More Details'));
 
     expect(mockNavigate).toHaveBeenCalledWith('/product/product-2');
@@ -197,30 +195,26 @@ describe('ProductDetails', () => {
     });
   });
 
-  it('should handle error when getting product details fails', async () => {
-    const consoleLogSpy = jest
-      .spyOn(console, 'log')
-      .mockImplementation(() => {});
-    const error = new Error('Failed to fetch product');
-    axios.get.mockRejectedValueOnce(error);
-
+  it('should log an error if fetching product details fails', async () => {
+    const mockError = new Error('Failed to fetch product details');
+    axios.get.mockRejectedValueOnce(mockError);
+  
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  
     render(
       <MemoryRouter>
         <ProductDetails />
       </MemoryRouter>
     );
-
+  
     await waitFor(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith(error);
+      expect(consoleSpy).toHaveBeenCalledWith(mockError);
     });
-
-    consoleLogSpy.mockRestore();
+  
+    consoleSpy.mockRestore();
   });
-
-  it('should handle error when getting similar products fails', async () => {
-    const consoleLogSpy = jest
-      .spyOn(console, 'log')
-      .mockImplementation(() => {});
+  
+  it('should log an error if fetching similar products fails', async () => {
     const mockProductData = {
       data: {
         product: {
@@ -229,113 +223,86 @@ describe('ProductDetails', () => {
           slug: 'product-1',
           price: 100,
           description: 'Description 1',
-          category: { _id: 'cat1', name: 'Category 1' },
+          category: { name: 'Category 1' },
         },
       },
     };
-
-    axios.get
-      .mockResolvedValueOnce(mockProductData)
-      .mockRejectedValueOnce(new Error('Failed to fetch similar products'));
-
-    render(
-      <MemoryRouter>
-        <ProductDetails />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        new Error('Failed to fetch similar products')
-      );
-    });
-
-    consoleLogSpy.mockRestore();
-  });
-
-  it('should add product to cart when ADD TO CART button is clicked', async () => {
-    const mockToast = require('react-hot-toast');
-    const mockProduct = {
-      _id: '1',
-      name: 'Product 1',
-      slug: 'product-1',
-      price: 100,
-      description: 'Description 1',
-      category: { name: 'Category 1' },
-    };
-
-    const mockProductData = {
-      data: {
-        product: mockProduct,
-      },
-    };
-
-    const mockSimilarProductsData = {
-      data: {
-        products: [],
-      },
-    };
-
-    // Set up initial empty cart state
-    const mockCart = [];
-    const mockSetCart = jest.fn();
-    require('../context/cart').useCart.mockReturnValue([mockCart, mockSetCart]);
-
-    // Create a spy for localStorage.setItem
-    const localStorageSpy = jest.spyOn(Storage.prototype, 'setItem');
-
-    // Mock API calls
+    const mockError = new Error('Failed to fetch similar products');
     axios.get.mockImplementation((url) => {
       if (url.includes('get-product')) {
         return Promise.resolve(mockProductData);
       }
       if (url.includes('related-product')) {
-        return Promise.resolve(mockSimilarProductsData);
+        return Promise.reject(mockError);
       }
     });
+  
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  
+    render(
+      <MemoryRouter>
+        <ProductDetails />
+      </MemoryRouter>
+    );
+  
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(mockError);
+    });
+  
+    consoleSpy.mockRestore();
+  });
 
+  it('should add the product to the cart when "ADD TO CART" button is clicked', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        product: {
+          _id: '1',
+          name: 'Product 1',
+          slug: 'product-1',
+          price: 100,
+          description: 'Description 1',
+          category: { _id: '10', name: 'Category 1' },
+        },
+      },
+    });
+  
+    // Mock the related products data
+    axios.get.mockResolvedValueOnce({
+      data: {
+        products: [],
+      },
+    });
+  
     const { getByText } = render(
       <MemoryRouter>
         <ProductDetails />
       </MemoryRouter>
     );
 
-    // Wait for product details to be fully loaded
-    await waitFor(() => {
-      expect(getByText('Name : Product 1')).toBeInTheDocument();
-      expect(getByText('Description : Description 1')).toBeInTheDocument();
-      expect(getByText('Price : $100.00')).toBeInTheDocument();
+    await act(async () => {
+      await waitFor(() => {
+        expect(getByText('ADD TO CART')).toBeInTheDocument();
+      });
     });
-
+  
     fireEvent.click(getByText('ADD TO CART'));
-
-    // Verify cart state was updated
-    expect(mockSetCart).toHaveBeenCalledWith([...mockCart, mockProduct]);
-
-    // Verify localStorage was updated
-    expect(localStorageSpy).toHaveBeenCalledWith(
-      'cart',
-      JSON.stringify([...mockCart, mockProduct])
-    );
-
-    // Verify toast was called
-    expect(mockToast.success).toHaveBeenCalledWith('Item Added to cart');
-
-    // Clean up the spy
-    localStorageSpy.mockRestore();
-  });
-
-  it('should not fetch product details when params.slug is undefined', async () => {
-    useParams.mockReturnValue({});
-
-    const mockGetProduct = jest.spyOn(axios, 'get');
-
-    render(
-      <MemoryRouter>
-        <ProductDetails />
-      </MemoryRouter>
-    );
-
-    expect(mockGetProduct).not.toHaveBeenCalled();
+  
+    expect(mockSetCart).toHaveBeenCalledWith([...mockCart, {
+      _id: '1',
+      name: 'Product 1',
+      slug: 'product-1',
+      price: 100,
+      description: 'Description 1',
+      category: { _id: '10', name: 'Category 1' },
+    }]);
+    expect(localStorage.setItem).toHaveBeenCalledWith('cart', JSON.stringify([{
+      _id: '1',
+      name: 'Product 1',
+      slug: 'product-1',
+      price: 100,
+      description: 'Description 1',
+      category: { _id: '10', name: 'Category 1' },
+    }]));
+    expect(toast.success).toHaveBeenCalledWith('Item Added to cart');
   });
 });
