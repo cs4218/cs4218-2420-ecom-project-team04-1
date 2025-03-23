@@ -220,7 +220,7 @@ describe("User Profile Component", () => {
             expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue("");
         });
         expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue("");
-        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue("");
+        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue(12345678); // Update as of 22 March: Changed to number
         expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue("");
       
         // Simulate auth.user update
@@ -229,7 +229,7 @@ describe("User Profile Component", () => {
                 user: {
                     name: 'Jane Doe',
                     email: 'janedoe@example.com',
-                    phone: '9876543210',
+                    phone: '9876543210', // Stored as a string in database
                     address: '456 Avenue',
                 },
                 token: "mockToken2",
@@ -249,7 +249,7 @@ describe("User Profile Component", () => {
             expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue('Jane Doe');
         }, { timeout: 3000});
         expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue('janedoe@example.com');
-        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue('9876543210');
+        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue(9876543210); // Update as of 22 March: Changed to number
         expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue('456 Avenue');
     
       });
