@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Checkbox, Radio } from "antd";
-import { Prices } from "../components/Prices";
-import { useCart } from "../context/cart";
-import axios from "axios";
-import toast from "react-hot-toast";
-import Layout from "./../components/Layout";
-import { AiOutlineReload } from "react-icons/ai";
-import "../styles/Homepages.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Checkbox, Radio } from 'antd';
+import { Prices } from '../components/Prices';
+import { useCart } from '../context/cart';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import Layout from './../components/Layout';
+import { AiOutlineReload } from 'react-icons/ai';
+import '../styles/Homepages.css';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const HomePage = () => {
   //get all cat
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
+      const { data } = await axios.get('/api/v1/category/get-category');
       if (data?.success) {
         setCategories(data?.category);
       }
@@ -52,7 +52,7 @@ const HomePage = () => {
   //getTOtal COunt
   const getTotal = async () => {
     try {
-      const { data } = await axios.get("/api/v1/product/product-count");
+      const { data } = await axios.get('/api/v1/product/product-count');
       setTotal(data?.total);
     } catch (error) {
       console.log(error);
@@ -69,7 +69,9 @@ const HomePage = () => {
       setLoading(true);
       const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
       setLoading(false);
-      setProducts([...products, ...data?.products]);
+      if (data && data.products) {
+        setProducts([...products, ...data.products]);
+      }
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -97,7 +99,7 @@ const HomePage = () => {
   //get filterd product
   const filterProduct = async () => {
     try {
-      const { data } = await axios.post("/api/v1/product/product-filters", {
+      const { data } = await axios.post('/api/v1/product/product-filters', {
         checked,
         radio,
       });
@@ -107,13 +109,13 @@ const HomePage = () => {
     }
   };
   return (
-    <Layout title={"ALL Products - Best offers "}>
+    <Layout title={'ALL Products - Best offers '}>
       {/* banner image */}
       <img
         src="/images/Virtual.png"
         className="banner-img"
         alt="bannerimage"
-        width={"100%"}
+        width={'100%'}
       />
       {/* banner image */}
       <div className="container-fluid row mt-3 home-page">
@@ -163,9 +165,9 @@ const HomePage = () => {
                   <div className="card-name-price">
                     <h5 className="card-title">{p.name}</h5>
                     <h5 className="card-title card-price">
-                      {p.price.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
+                      {p.price.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
                       })}
                     </h5>
                   </div>
@@ -184,10 +186,10 @@ const HomePage = () => {
                       onClick={() => {
                         setCart([...cart, p]);
                         localStorage.setItem(
-                          "cart",
+                          'cart',
                           JSON.stringify([...cart, p])
                         );
-                        toast.success("Item Added to cart");
+                        toast.success('Item Added to cart');
                       }}
                     >
                       ADD TO CART
@@ -207,10 +209,10 @@ const HomePage = () => {
                 }}
               >
                 {loading ? (
-                  "Loading ..."
+                  'Loading ...'
                 ) : (
                   <>
-                    {" "}
+                    {' '}
                     Load more <AiOutlineReload />
                   </>
                 )}
