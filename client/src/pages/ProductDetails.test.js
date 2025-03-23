@@ -9,7 +9,9 @@ import '@testing-library/jest-dom/extend-expect';
 import toast from 'react-hot-toast';
 import { act } from 'react-dom/test-utils';
 jest.mock('axios');
-jest.mock('react-hot-toast');
+jest.mock('react-hot-toast', () => ({
+  success: jest.fn(),
+}));
 jest.mock('../context/cart', () => ({
   useCart: jest.fn(() => [[], jest.fn()]),
 }));
@@ -18,7 +20,9 @@ jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
   MemoryRouter: ({ children }) => <div>{children}</div>,
 }));
-jest.mock('../components/Layout', () => ({ children }) => <div>{children}</div>);
+jest.mock('../components/Layout', () => ({ children }) => (
+  <div>{children}</div>
+));
 
 describe('ProductDetails', () => {
   const mockNavigate = jest.fn();
@@ -48,8 +52,20 @@ describe('ProductDetails', () => {
     const mockSimilarProductsData = {
       data: {
         products: [
-          { _id: '2', name: 'Product 2', slug: 'product-2', price: 200, description: 'Description 2' },
-          { _id: '3', name: 'Product 3', slug: 'product-3', price: 300, description: 'Description 3' },
+          {
+            _id: '2',
+            name: 'Product 2',
+            slug: 'product-2',
+            price: 200,
+            description: 'Description 2',
+          },
+          {
+            _id: '3',
+            name: 'Product 3',
+            slug: 'product-3',
+            price: 300,
+            description: 'Description 3',
+          },
         ],
       },
     };
@@ -72,7 +88,7 @@ describe('ProductDetails', () => {
       expect(getByText('Product Details')).toBeInTheDocument();
       expect(getByText('Name : Product 1')).toBeInTheDocument();
       expect(getByText('Description : Description 1')).toBeInTheDocument();
-      expect(getByText('Price :$100.00')).toBeInTheDocument();
+      expect(getByText('Price : $100.00')).toBeInTheDocument();
       expect(getByText('Category : Category 1')).toBeInTheDocument();
       expect(getByAltText('Product 1')).toBeInTheDocument();
     });
@@ -102,7 +118,13 @@ describe('ProductDetails', () => {
     const mockSimilarProductsData = {
       data: {
         products: [
-          { _id: '2', name: 'Product 2', slug: 'product-2', price: 200, description: 'Description 2' },
+          {
+            _id: '2',
+            name: 'Product 2',
+            slug: 'product-2',
+            price: 200,
+            description: 'Description 2',
+          },
         ],
       },
     };
@@ -163,7 +185,7 @@ describe('ProductDetails', () => {
       expect(getByText('Product Details')).toBeInTheDocument();
       expect(getByText('Name : Product 1')).toBeInTheDocument();
       expect(getByText('Description : Description 1')).toBeInTheDocument();
-      expect(getByText('Price :$100.00')).toBeInTheDocument();
+      expect(getByText('Price : $100.00')).toBeInTheDocument();
       expect(getByText('Category : Category 1')).toBeInTheDocument();
     });
 
