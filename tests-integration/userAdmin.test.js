@@ -51,6 +51,10 @@ describe('Admin User Management API', () => {
   let testUsers = [];
 
   beforeAll(async () => {
+    // Ensure environment variables are set
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
+
     // Clean up any existing test users
     await UserModel.deleteMany({
       email: { $regex: /^testuser/ },
@@ -87,6 +91,9 @@ describe('Admin User Management API', () => {
   });
 
   beforeEach(async () => {
+    // Ensure environment variables are set before each test
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
     adminToken = await generateAdminToken();
     userToken = await generateUserToken();
   });
@@ -96,6 +103,7 @@ describe('Admin User Management API', () => {
     await UserModel.deleteMany({
       email: { $regex: /^test/ },
     });
+    // Don't delete environment variables as they might be needed by other tests
   });
 
   // ===== USER RETRIEVAL TESTS =====

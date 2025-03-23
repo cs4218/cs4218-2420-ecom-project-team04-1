@@ -31,8 +31,9 @@ describe('Admin Product Management API', () => {
 
   // Setup before tests
   beforeAll(async () => {
-    // Set NODE_ENV to test to enable admin bypass
+    // Ensure environment variables are set
     process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
 
     // Create a test category first, as products require a category
     const category = await new CategoryModel({
@@ -64,6 +65,9 @@ describe('Admin Product Management API', () => {
   });
 
   beforeEach(async () => {
+    // Ensure environment variables are set before each test
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
     adminToken = await generateAdminToken();
   });
 
@@ -71,7 +75,7 @@ describe('Admin Product Management API', () => {
   afterAll(async () => {
     await ProductModel.deleteMany({});
     await CategoryModel.deleteMany({});
-    delete process.env.NODE_ENV;
+    // Don't delete environment variables as they might be needed by other tests
   });
 
   // ===== CREATION TESTS =====

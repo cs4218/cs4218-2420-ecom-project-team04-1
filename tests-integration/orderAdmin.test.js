@@ -57,6 +57,10 @@ describe('Admin Order Management API', () => {
 
   // Setup before tests
   beforeAll(async () => {
+    // Ensure environment variables are set
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
+
     // Clean up any existing test users
     await UserModel.deleteMany({
       email: { $regex: /^test/ },

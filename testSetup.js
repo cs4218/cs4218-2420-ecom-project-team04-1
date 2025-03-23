@@ -35,6 +35,10 @@ export const createTestAdminUser = async () => {
 
 export const setupTestDB = () => {
   beforeAll(async () => {
+    // Ensure NODE_ENV is set to test
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
+
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.disconnect(); // Ensure no existing connections

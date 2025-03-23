@@ -28,7 +28,16 @@ describe('Admin Category Management API', () => {
   let categoryId;
 
   beforeEach(async () => {
+    // Ensure environment variables are set before each test
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
     adminToken = await generateAdminToken();
+  });
+
+  // Clean up after tests
+  afterAll(async () => {
+    await CategoryModel.deleteMany({});
+    // Don't delete environment variables as they might be needed by other tests
   });
 
   // ===== CREATION TESTS =====
