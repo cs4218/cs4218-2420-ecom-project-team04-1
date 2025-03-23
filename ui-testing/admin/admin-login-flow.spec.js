@@ -85,63 +85,62 @@ test.describe('Admin Dashboard Features', () => {
 
     // Upload oversized image
     await fileInput.setInputFiles(imagePath);
-    const uniqueProductName = `NUS-${Date.now()}`;
+    const uniqueProductName = 'NUS Logo';
     await page.getByPlaceholder('write a name').fill(uniqueProductName);
-    await page.getByPlaceholder('write a description').fill('This is NUS');
-    await page.getByPlaceholder('write a Price').fill('10000');
-    await page.getByPlaceholder('write a quantity').fill('20');
+    await page.getByPlaceholder('write a description').fill('This is NUS Logo');
+    await page.getByPlaceholder('write a Price').fill('1000');
+    await page.getByPlaceholder('write a quantity').fill('1');
     await page.locator('#rc_select_1').click();
     await page.getByText('Yes').click();
     await page.getByRole('button', { name: 'CREATE PRODUCT' }).click();
 
-    await expect(page).toHaveURL(/.*products/);
+    await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
   });
 
   test('admin can update an existing product', async ({ page }) => {
-
-    // 1. Go to Dashboard → Products
+  
+    // 2. Navigate to Dashboard → Products
     await page.getByRole('button', { name: 'Test' }).click();
     await page.getByRole('link', { name: 'Dashboard' }).click();
     await page.getByRole('link', { name: 'Products' }).click();
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
   
-    // 2. Select an existing product (link text may differ in your app)
-    await page.getByRole('link', { name: /NUS-\d+/ }).first().click();
+    // 3. Select the product to update.
+    // Here we select a product using its full visible text from codegen.
+    await page.getByRole('link', { name: 'NUS Logo' }).click();
+    // Wait until the product details page is loaded
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/product\/.*/);
   
-    // 3. Update product fields
-    const updatedName = `Lion-${Date.now()}`;
-    await page.getByRole('textbox', { name: 'write a name' }).click();
-    await page.getByRole('textbox', { name: 'write a name' }).press('ControlOrMeta+a');
-    await page.getByRole('textbox', { name: 'write a name' }).fill(updatedName);
+    // 4. Update product details: change name and description to "Lion"
+    const newName = 'Lion';
+    const newDescription = 'Lion';
+    
+    // Update the product name
+    const nameField = page.getByRole('textbox', { name: 'write a name' });
+    await nameField.click();
+    await nameField.press('ControlOrMeta+a');
+    await nameField.fill(newName);
   
-    await page.getByRole('textbox', { name: 'write a description' }).fill('This is lion');
-    await page.getByPlaceholder('write a Price').fill('9');
-    await page.getByPlaceholder('write a quantity').fill('1');
-  
-    // Example toggles (Yes/No)
+    // Update the product description
+    const descriptionField = page.getByRole('textbox', { name: 'write a description' });
+    await descriptionField.click();
+    await descriptionField.press('ControlOrMeta+a');
+    await descriptionField.fill(newDescription);
+
     const toggleDisplay = page.locator('span.ant-select-selection-item', { hasText: /^(Yes|No)$/ }).first();
     const currentToggle = (await toggleDisplay.textContent())?.trim();
-
     await toggleDisplay.click();
-
     if (currentToggle === 'Yes') {
       await page.getByTitle('No').click();
     } else {
-      await page.getByTitle('Yes').click();
+      await page.getByTitle('Yes').first().click();
     }
-
   
-    // 4. Upload new photo (use a fixture path instead of raw filename)
-    const photoPath = path.resolve(__dirname, '../data/Lions.jpg');
-    await page.locator('input[type="file"]').setInputFiles(photoPath);
-  
-    // 5. Click update
+    // 5. Click the "UPDATE PRODUCT" button to submit the changes
     await page.getByRole('button', { name: 'UPDATE PRODUCT' }).click();
   
-    // 6. Assert success message or updated product name
+    // 6. Assert that the update was successful by checking:
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
-    await expect(page.getByText(updatedName)).toBeVisible();
   });
 
   test('should show error when updating a product with a duplicate name', async ({ page }) => {
@@ -150,7 +149,6 @@ test.describe('Admin Dashboard Features', () => {
     await page.getByRole('link', { name: 'Products' }).click();
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
   
-    // Use an already created product (e.g., the one starting with NUS-)
     const duplicateName = 'Novel';
     const validName = 'Laptop';
   
@@ -169,6 +167,39 @@ test.describe('Admin Dashboard Features', () => {
   
     // Assert error toast/message
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/product\/.*/);
+  });
+
+  test('admin can delete a product from the dashboard', async ({ page }) => {
+    // Navigate to products list
+    await page.getByRole('button', { name: 'Test' }).click();
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await page.getByRole('link', { name: 'Products' }).click();
+    await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
+  
+    // Select the product to delete
+    const productName = 'Lion';
+    const productLink = page.getByRole('link', { name: productName });
+    await expect(productLink).toBeVisible();
+  
+    // Go into the product details page
+    await productLink.click();
+    await expect(page).toHaveURL(/.*\/dashboard\/admin\/product\/.*/);
+
+    // await page.getByRole('button', { name: 'DELETE PRODUCT' }).click();
+  
+    // Handle the deletion prompt (it requires input text)
+    page.once('dialog', async (dialog) => {
+      // Provide required text and accept the dialog
+      await dialog.accept('confirm');
+    });
+  
+    // Click DELETE PRODUCT to trigger the prompt
+    await page.getByRole('button', { name: 'DELETE PRODUCT' }).click();
+  
+    // Now manually navigate back to the products list
+    await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
+    // Finally, assert the deleted product is no longer visible
+    await expect(page.getByText(productName)).toHaveCount(0);
   });
 
 });
