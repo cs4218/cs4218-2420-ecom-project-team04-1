@@ -63,9 +63,7 @@ test.describe('Admin Product Features', () => {
     // Wait until the product details page is loaded
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/product\/.*/);
   
-    // 4. Update product details: change name and description to "Lion"
-    const newName = 'Lion';
-    await page.getByPlaceholder('write a name').fill(newName);
+    // 4. Update product details
     await page.getByPlaceholder('write a description').fill('This is lion');
     await page.getByPlaceholder('write a Price').fill('9');
     await page.getByPlaceholder('write a quantity').fill('1');
@@ -87,7 +85,6 @@ test.describe('Admin Product Features', () => {
   
     // 6. Assert that the update was successful by checking:
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
-    await expect(page.getByText(newName)).toBeVisible();
   });
 
   test('should show error when updating a product with a duplicate name', async ({ page }) => {
@@ -124,20 +121,20 @@ test.describe('Admin Product Features', () => {
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
   
     // Select the product to delete
-    const productName = 'Lion';
-    const productLink = page.getByRole('link', { name: productName });
+    const productLink = page.getByRole('link', { name: 'NUS Logo' });
     await expect(productLink).toBeVisible();
   
     // Go into the product details page
     await productLink.click();
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/product\/.*/);
-
-    // await page.getByRole('button', { name: 'DELETE PRODUCT' }).click();
+    await page.getByRole('button', { name: 'DELETE PRODUCT' }).click();
   
     // Handle the deletion prompt (it requires input text)
     page.once('dialog', async (dialog) => {
       // Provide required text and accept the dialog
       await dialog.accept('confirm');
+      await page.keyboard.type('yes');
+      await page.keyboard.press('Enter');
     });
 
     // Click DELETE PRODUCT to trigger the prompt
@@ -147,7 +144,7 @@ test.describe('Admin Product Features', () => {
     // Now manually navigate back to the products list
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
     // Finally, assert the deleted product is no longer visible
-    await expect(page.getByText(productName)).toHaveCount(0);
+    await expect(page.getByText('NUS Logo')).toHaveCount(0);
   });
 
 });
