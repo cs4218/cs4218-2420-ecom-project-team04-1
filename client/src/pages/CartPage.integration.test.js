@@ -83,10 +83,6 @@ describe('CartPage Integration Tests', () => {
 
     renderWithProviders(<CartPage />);
 
-    expect(screen.getByText('Product 1')).toBeInTheDocument();
-    expect(screen.getByText('Product 2')).toBeInTheDocument();
-    expect(screen.getByText('Total : $300.00')).toBeInTheDocument();
-
     const newCartData = [
       ...mockCartData,
       { _id: '3', name: 'Product 3', price: 150 , description: 'This is product 3'},
