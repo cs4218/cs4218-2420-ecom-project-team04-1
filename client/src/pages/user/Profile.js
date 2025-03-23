@@ -19,7 +19,7 @@ const Profile = () => {
     if (auth?.user) {
       const { email, name, phone, address } = auth?.user;
       setName(name || "");
-      setPhone(phone || "");
+      setPhone(phone || "12345678");
       setEmail(email || "");
       setAddress(address || "");
     }
