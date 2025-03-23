@@ -27,7 +27,9 @@ const Search = () => {
               ? "No Products Found"
               : `Found ${results.length}`}
           </h6>
-          <div className="d-flex flex-wrap mt-4">
+          {/* Render only if vales.results is defined */}
+          {values?.results && (
+            <div className="d-flex flex-wrap mt-4">
             {values?.results.map((p) => (
               // Unique ID for each product
               <div key={p._id} className="card m-2" style={{ width: "18rem" }}>
@@ -62,6 +64,9 @@ const Search = () => {
               </div>
             ))}
           </div>
+          )}
+
+          
         </div>
       </div>
     </Layout>
