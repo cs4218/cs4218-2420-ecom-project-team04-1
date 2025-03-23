@@ -4,6 +4,7 @@ import ProductModel from './productModel';
 import UserModel from './userModel';
 import CategoryModel from './categoryModel';
 import { setupTestDB } from '../testSetup';
+import bcrypt from 'bcrypt';
 
 setupTestDB();
 
@@ -13,14 +14,19 @@ describe('Order Model Test Suite', () => {
   let validOrder;
 
   beforeEach(async () => {
-    // Create a test user
+    // Create a test user with unique email
+    const timestamp = Date.now();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('password123', salt);
+    const hashedAnswer = await bcrypt.hash('blue', salt);
+
     const user = new UserModel({
       name: 'Test User',
-      email: 'test@example.com',
-      password: 'password123',
+      email: `test${timestamp}@example.com`,
+      password: hashedPassword,
       phone: '1234567890',
       address: { street: '123 Test St' },
-      answer: 'blue',
+      answer: hashedAnswer,
     });
     testUser = await user.save();
 
@@ -46,6 +52,16 @@ describe('Order Model Test Suite', () => {
       status: 'Not Process',
     };
   }, 20000); // Longer timeout for beforeEach since it creates multiple entities
+
+  afterEach(async () => {
+    // Clean up test data
+    await OrderModel.deleteMany({});
+    await ProductModel.deleteMany({});
+    await CategoryModel.deleteMany({});
+    await UserModel.deleteMany({
+      email: { $regex: /^test/ },
+    });
+  });
 
   it('should create & save order successfully', async () => {
     const order = new OrderModel(validOrder);

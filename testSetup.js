@@ -2,11 +2,43 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import UserModel from './models/userModel';
 import CategoryModel from './models/categoryModel';
+import bcrypt from 'bcrypt';
 
 let mongoServer;
+let testAdminUser;
+
+export const createTestAdminUser = async () => {
+  // First check if admin user already exists
+  const existingAdmin = await UserModel.findOne({
+    email: 'testadmin@example.com',
+  });
+  if (existingAdmin) {
+    return existingAdmin;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash('test123', salt);
+  const hashedAnswer = await bcrypt.hash('Test Answer', salt);
+
+  testAdminUser = await UserModel.create({
+    name: 'Test Admin',
+    email: 'testadmin@example.com',
+    password: hashedPassword,
+    phone: '1234567890',
+    address: 'Test Address',
+    answer: hashedAnswer,
+    role: 1,
+  });
+
+  return testAdminUser;
+};
 
 export const setupTestDB = () => {
   beforeAll(async () => {
+    // Ensure NODE_ENV is set to test
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret';
+
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.disconnect(); // Ensure no existing connections
@@ -25,13 +57,19 @@ export const setupTestDB = () => {
     await CategoryModel.createCollection();
     await UserModel.syncIndexes();
     await CategoryModel.syncIndexes();
+
+    // Create test admin user
+    await createTestAdminUser();
   }, 30000);
 
   afterEach(async () => {
+    // Clean up all collections except users
     const collections = mongoose.connection.collections;
     for (const key in collections) {
-      const collection = collections[key];
-      await collection.deleteMany({});
+      if (key !== 'users') {
+        const collection = collections[key];
+        await collection.deleteMany({});
+      }
     }
   });
 
