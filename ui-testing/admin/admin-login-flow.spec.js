@@ -192,10 +192,11 @@ test.describe('Admin Dashboard Features', () => {
       // Provide required text and accept the dialog
       await dialog.accept('confirm');
     });
-  
+
     // Click DELETE PRODUCT to trigger the prompt
     await page.getByRole('button', { name: 'DELETE PRODUCT' }).click();
-  
+    await page.keyboard.type('yes');
+    await page.keyboard.press('Enter');
     // Now manually navigate back to the products list
     await expect(page).toHaveURL(/.*\/dashboard\/admin\/products/);
     // Finally, assert the deleted product is no longer visible
