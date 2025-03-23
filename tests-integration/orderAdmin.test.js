@@ -23,14 +23,29 @@ describe('Admin Order Management API', () => {
   };
 
   // Generate regular user token for unauthorized tests
-  const generateUserToken = () => {
-    const regularUser = {
-      _id: new mongoose.Types.ObjectId(),
+  const generateUserToken = async () => {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('password123', salt);
+    const hashedAnswer = await bcrypt.hash('Test Answer', salt);
+    const timestamp = Date.now();
+
+    const regularUser = await new UserModel({
+      name: 'Test Regular User',
+      email: `testregular${timestamp}@example.com`,
+      password: hashedPassword,
+      phone: '1234567890',
+      address: 'Test Address',
+      answer: hashedAnswer,
       role: 0, // Regular user role
-    };
-    return JWT.sign(regularUser, process.env.JWT_SECRET || 'test-secret', {
-      expiresIn: '1d',
-    });
+    }).save();
+
+    return JWT.sign(
+      { _id: regularUser._id },
+      process.env.JWT_SECRET || 'test-secret',
+      {
+        expiresIn: '1d',
+      }
+    );
   };
 
   let adminToken;
@@ -44,7 +59,7 @@ describe('Admin Order Management API', () => {
   beforeAll(async () => {
     // Clean up any existing test users
     await UserModel.deleteMany({
-      email: 'testbuyer@example.com',
+      email: { $regex: /^test/ },
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -103,7 +118,7 @@ describe('Admin Order Management API', () => {
 
   beforeEach(async () => {
     adminToken = await generateAdminToken();
-    userToken = generateUserToken();
+    userToken = await generateUserToken();
   });
 
   afterAll(async () => {
@@ -111,7 +126,7 @@ describe('Admin Order Management API', () => {
     await OrderModel.deleteMany({});
     await ProductModel.deleteMany({});
     await UserModel.deleteMany({
-      email: 'testbuyer@example.com',
+      email: { $regex: /^test/ },
     });
   });
 
