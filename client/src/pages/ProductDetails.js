@@ -69,6 +69,7 @@ const ProductDetails = () => {
             className="btn btn-secondary ms-1"
             onClick={() => {
               setCart([...cart, product]);
+              console.log('Product data:', product);
               localStorage.setItem(
                 "cart",
                 JSON.stringify([...cart, product])

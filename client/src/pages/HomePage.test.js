@@ -543,4 +543,116 @@ describe('HomePage', () => {
       expect(consoleSpy).toHaveBeenCalledWith(new Error('Failed to fetch products'));
     });
   });
+
+  it('should log an error to the console when fetching products fails', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  
+    axios.get.mockResolvedValueOnce({
+      data: { success: true, category: [] },
+    });
+    axios.get.mockResolvedValueOnce({
+      data: { success: true, total: 4 },
+    });
+    axios.get.mockResolvedValueOnce({
+      data: {
+        products: [
+          {
+            _id: '1',
+            name: 'Initial Product',
+            price: 100,
+            description: 'Description 1',
+            slug: 'product-1',
+          },
+        ],
+      },
+    });
+    axios.get.mockRejectedValueOnce(new Error('Failed to load more products'));
+
+    const { getByText, queryByText } = render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(getByText('Initial Product')).toBeInTheDocument();
+    });
+    fireEvent.click(getByText('Load more'));
+
+  
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(new Error('Failed to load more products'));
+    });
+  
+    consoleSpy.mockRestore();
+  });
+
+  it('should remove a category from the filter when unchecked and reset products when rechecked', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        success: true,
+        category: [
+          { _id: '1', name: 'Category 1' },
+          { _id: '2', name: 'Category 2' },
+        ],
+      },
+    });
+  
+    axios.get.mockResolvedValueOnce({
+      data: { success: true, total: 2 },
+    });
+  
+    axios.get.mockResolvedValueOnce({
+      data: {
+        products: [
+          {
+            _id: '1',
+            name: 'Product 1',
+            price: 100,
+            description: 'Description 1',
+            slug: 'product-1',
+          },
+          {
+            _id: '2',
+            name: 'Product 2',
+            price: 200,
+            description: 'Description 2',
+            slug: 'product-2',
+          },
+        ],
+      },
+    });
+  
+    axios.post.mockResolvedValueOnce({
+      data: {
+        products: [
+          {
+            _id: '1',
+            name: 'Product 1',
+            price: 100,
+            description: 'Description 1',
+            slug: 'product-1',
+          },
+        ],
+      },
+    });
+  
+    const { getByLabelText, queryByText } = render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
+    );
+  
+    await waitFor(() => {
+      expect(getByLabelText('Category 1')).toBeInTheDocument();
+      expect(getByLabelText('Category 2')).toBeInTheDocument();
+    });
+  
+    fireEvent.click(getByLabelText('Category 1'));
+    fireEvent.click(getByLabelText('Category 1'));
+  
+    await waitFor(() => {
+      expect(queryByText('Product 1')).toBeInTheDocument();
+      expect(queryByText('Product 2')).toBeInTheDocument();
+    });
+  });
 });
