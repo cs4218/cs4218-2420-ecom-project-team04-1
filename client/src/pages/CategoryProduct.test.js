@@ -12,7 +12,9 @@ jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
   MemoryRouter: ({ children }) => <div>{children}</div>,
 }));
-jest.mock('../components/Layout', () => ({ children }) => <div>{children}</div>);
+jest.mock('../components/Layout', () => ({ children }) => (
+  <div>{children}</div>
+));
 
 describe('CategoryProduct', () => {
   const mockNavigate = jest.fn();
@@ -27,8 +29,20 @@ describe('CategoryProduct', () => {
     const mockData = {
       data: {
         products: [
-          { _id: '1', name: 'Product 1', slug: 'product-1', price: 100, description: 'Description 1' },
-          { _id: '2', name: 'Product 2', slug: 'product-2', price: 200, description: 'Description 2' },
+          {
+            _id: '1',
+            name: 'Product 1',
+            slug: 'product-1',
+            price: 100,
+            description: 'Description 1',
+          },
+          {
+            _id: '2',
+            name: 'Product 2',
+            slug: 'product-2',
+            price: 200,
+            description: 'Description 2',
+          },
         ],
         category: { name: 'Category 1' },
       },
@@ -55,7 +69,13 @@ describe('CategoryProduct', () => {
     const mockData = {
       data: {
         products: [
-          { _id: '1', name: 'Product 1', slug: 'product-1', price: 100, description: 'Description 1' },
+          {
+            _id: '1',
+            name: 'Product 1',
+            slug: 'product-1',
+            price: 100,
+            description: 'Description 1',
+          },
         ],
         category: { name: 'Category Name' },
       },
@@ -99,7 +119,9 @@ describe('CategoryProduct', () => {
   });
 
   it('should handle error when getting products by category fails', async () => {
-    const consoleErrorMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleErrorMock = jest
+      .spyOn(console, 'log')
+      .mockImplementation(() => {});
     const errorMessage = 'Network Error';
     axios.get.mockRejectedValue(new Error(errorMessage));
 
@@ -114,5 +136,24 @@ describe('CategoryProduct', () => {
     });
 
     consoleErrorMock.mockRestore();
+  });
+
+  it('should not fetch products when params.slug is undefined', async () => {
+    // Clear all mocks before test
+    jest.clearAllMocks();
+
+    // Mock useParams to return undefined slug
+    useParams.mockReturnValue({}); // Changed to empty object instead of {slug: undefined}
+
+    const mockGetProducts = jest.spyOn(axios, 'get');
+
+    render(
+      <MemoryRouter>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    // No need to wait, verify immediately
+    expect(mockGetProducts).not.toHaveBeenCalled();
   });
 });
