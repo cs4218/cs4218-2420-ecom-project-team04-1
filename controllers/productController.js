@@ -44,7 +44,7 @@ export const createProductController = async (req, res) => {
     if (existingProduct) {
       return res.status(400).send({
         success: false,
-        error: "Product with this name already exists"
+        error: 'Product with this name already exists',
       });
     }
 
@@ -353,14 +353,14 @@ export const braintreeTokenController = async (req, res) => {
   try {
     gateway.clientToken.generate({}, function (err, response) {
       if (err) {
-        res.status(500).send(err);
+        res.status(500).send({ error: 'Failed to generate token' });
       } else {
         res.send(response);
       }
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: "Failed to generate token" });
+    res.status(500).send({ error: 'Failed to generate token' });
   }
 };
 
@@ -368,6 +368,12 @@ export const braintreeTokenController = async (req, res) => {
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
+
+    // Validate empty cart
+    if (!cart || cart.length === 0) {
+      return res.status(500).send({ error: 'Cart is empty' });
+    }
+
     let total = 0;
     cart.map((i) => {
       total += i.price;
@@ -386,15 +392,16 @@ export const brainTreePaymentController = async (req, res) => {
             products: cart,
             payment: result,
             buyer: req.user._id,
-          })
+          });
           await order.save();
           res.json({ ok: true });
         } else {
-          res.status(500).send(error);
+          res.status(500).send({ error: 'Payment processing failed' });
         }
       }
     );
   } catch (error) {
     console.log(error);
+    res.status(500).send({ error: 'Payment processing failed' });
   }
 };

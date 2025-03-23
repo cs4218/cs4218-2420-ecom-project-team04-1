@@ -52,8 +52,18 @@ describe("Search Component", () => {
         expect(screen.getByText(/Search Results/i)).toBeInTheDocument();
     });
 
+    test("renders loading state when search context is null", () => {
+      mockSearchContext(null);
+      render(<MemoryRouter initialEntries={["/search"]}>
+        <Routes>
+          <Route path="/search" element={<Search />} />
+        </Routes>
+      </MemoryRouter>);
+      expect(screen.getByText("Loading...")).toBeInTheDocument();
+    });
+
     test("displays 'No Products Found' when results are empty", () => {
-        mockSearchContext({ results: [] });
+        mockSearchContext({ results: undefined });
         render(<MemoryRouter initialEntries={["/search"]}>
             <Routes>
               <Route path="/search" element={<Search />} />

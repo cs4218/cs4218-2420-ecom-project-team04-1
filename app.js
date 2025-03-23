@@ -29,4 +29,8 @@ app.get('/', (req,res) => {
     res.send("<h1>Welcome to ecommerce app</h1>");
 });
 
-export default app; 
+app.get("/", (req, res) => {
+  res.send("<h1>Welcome to ecommerce app</h1>");
+});
+
+export default app;

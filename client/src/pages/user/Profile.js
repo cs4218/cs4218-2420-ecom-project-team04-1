@@ -11,7 +11,7 @@ const Profile = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("12345678");
   const [address, setAddress] = useState("");
 
   //get user data
@@ -19,7 +19,7 @@ const Profile = () => {
     if (auth?.user) {
       const { email, name, phone, address } = auth?.user;
       setName(name || "");
-      setPhone(phone || "");
+      setPhone(phone || "12345678");
       setEmail(email || "");
       setAddress(address || "");
     }
@@ -96,9 +96,10 @@ const Profile = () => {
                 </div>
                 <div className="mb-3">
                   <input
-                    type="text"
+                    type="number"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
+                    onChange={(e) => setPhone(e.target.value.toString())}
                     className="form-control"
                     id="exampleInputPhoneNumber1"
                     placeholder="Enter Your Phone Number"

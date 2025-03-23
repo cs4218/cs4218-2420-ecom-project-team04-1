@@ -11,7 +11,8 @@
     "sonarqube": "sonar-scanner",
     "test": "jest --config jest.config.js --coverage",
     "test:frontend": "jest --config jest.frontend.config.js --coverage",
-    "test:backend": "jest --config jest.backend.config.js --coverage"
+    "test:backend": "jest --config jest.backend.config.js --coverage",
+    "test:e2e": "playwright test"
   },
   "keywords": [],
   "author": "RP",
@@ -43,8 +44,9 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
-    "@playwright/test": "^1.44.0",
+    "@playwright/test": "^1.51.1",
     "@types/node": "^20.12.12",
+    "axios-mock-adapter": "^2.1.0",
     "babel-jest": "^29.7.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
