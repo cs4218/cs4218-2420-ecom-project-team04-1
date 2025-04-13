@@ -104,6 +104,7 @@ const HomePage = () => {
         radio,
       });
       setProducts(data?.products);
+      setTotal(data?.total);
     } catch (error) {
       console.log(error);
     }
@@ -200,25 +201,28 @@ const HomePage = () => {
             ))}
           </div>
           <div className="m-2 p-3">
-            {products && products.length < total && (
-              <button
-                className="btn loadmore"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage(page + 1);
-                }}
-              >
-                {loading ? (
-                  'Loading ...'
-                ) : (
-                  <>
-                    {' '}
-                    Load more <AiOutlineReload />
-                  </>
-                )}
-              </button>
+            {products && products.length > 0 ? (
+              products.length < total && (
+                <button
+                  className="btn loadmore"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(page + 1);
+                  }}
+                >
+                  {loading ? (
+                    'Loading ...'
+                  ) : (
+                    <>
+                      Load more <AiOutlineReload />
+                    </>
+                  )}
+                </button>
+              )
+            ) : (
+              <h5 className="text-center">No Products Found</h5>
             )}
-          </div>
+        </div>
         </div>
       </div>
     </Layout>
